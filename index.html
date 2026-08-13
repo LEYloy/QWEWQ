@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тестовый магазин</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="profile" class="card">
+      <div class="loader">Загружаем профиль…</div>
+    </div>
+
+    <div id="product" class="card" style="display:none">
+      <h2 id="p-title"></h2>
+      <p id="p-desc"></p>
+      <div class="price-row">
+        <span id="p-price-ton"></span>
+        <span id="p-price-stars"></span>
+      </div>
+      <button id="buy-stars" class="btn btn-stars">Оплатить ⭐ Stars</button>
+      <button id="buy-crypto" class="btn btn-crypto">Оплатить через CryptoBot (TON)</button>
+      <div id="status"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
