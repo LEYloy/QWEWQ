@@ -5,7 +5,7 @@ tg.expand();
 // ⚠️ ВАЖНО: впиши сюда адрес своего бэкенда (Railway/Render/VPS), например:
 // const API_URL = 'https://my-bot-backend.up.railway.app';
 // Если фронт и бэкенд на одном домене (не GitHub Pages) — оставь пустую строку ''
-const API_URL = 'https://ВПИШИ-СЮДА-АДРЕС-БЭКЕНДА.up.railway.app';
+const API_URL = 'https://qweqwrqwrq-production.up.railway.app';
 
 const initData = tg.initData; // сырая строка, подписанная Telegram — именно она "связывает" апп с профилем
 
