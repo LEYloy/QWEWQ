@@ -59,7 +59,6 @@ document.getElementById('buy-stars').addEventListener('click', async () => {
     return;
   }
 
-  // openInvoice открывает окно оплаты Stars ПРЯМО ВНУТРИ мини-аппа, никуда не выходя
   tg.openInvoice(data.invoiceLink, (status) => {
     if (status === 'paid') {
       setStatus('Оплачено ✅');
@@ -78,22 +77,27 @@ document.getElementById('buy-crypto').addEventListener('click', async () => {
     body: JSON.stringify({ initData }),
   });
   const data = await res.json();
-  if (!data.miniAppInvoiceUrl) {
+  if (!data.invoiceUrl) {
     setStatus(data.error || 'Ошибка создания счёта');
     return;
   }
 
-  // Открываем окно оплаты CryptoBot, не покидая Telegram
-  tg.openInvoice(data.miniAppInvoiceUrl, async (status) => {
-    setStatus('Проверяем оплату…');
+  // Открываем чат с @CryptoBot напрямую — оплата происходит там, не в мини-аппе
+  tg.openTelegramLink(data.invoiceUrl);
+  setStatus('Открыт чат с CryptoBot — заверши оплату там, потом вернись сюда');
+
+  const poll = setInterval(async () => {
     const check = await fetch(API_URL + '/api/pay/cryptobot/status', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ invoiceId: data.invoiceId }),
     });
     const result = await check.json();
-    setStatus(result.status === 'paid' ? 'Оплачено ✅' : `Статус: ${result.status}`);
-  });
+    if (result.status === 'paid') {
+      setStatus('Оплачено ✅');
+      clearInterval(poll);
+    }
+  }, 3000);
 });
 
 loadProfile();
