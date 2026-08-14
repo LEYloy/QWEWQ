@@ -2,9 +2,7 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-// ⚠️ ВАЖНО: впиши сюда адрес своего бэкенда (Railway/Render/VPS), например:
-// const API_URL = 'https://my-bot-backend.up.railway.app';
-// Если фронт и бэкенд на одном домене (не GitHub Pages) — оставь пустую строку ''
+// ⚠️ ВАЖНО: замени на свой реальный адрес бэкенда с Railway
 const API_URL = 'https://qweqwrqwrq-production.up.railway.app';
 
 const initData = tg.initData; // сырая строка, подписанная Telegram — именно она "связывает" апп с профилем
@@ -71,33 +69,37 @@ document.getElementById('buy-stars').addEventListener('click', async () => {
 
 document.getElementById('buy-crypto').addEventListener('click', async () => {
   setStatus('Создаём счёт в CryptoBot…');
-  const res = await fetch(API_URL + '/api/pay/cryptobot', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ initData }),
-  });
-  const data = await res.json();
-  if (!data.invoiceUrl) {
-    setStatus(data.error || 'Ошибка создания счёта');
-    return;
-  }
-
-  // Открываем чат с @CryptoBot напрямую — оплата происходит там, не в мини-аппе
-  tg.openTelegramLink(data.invoiceUrl);
-  setStatus('Открыт чат с CryptoBot — заверши оплату там, потом вернись сюда');
-
-  const poll = setInterval(async () => {
-    const check = await fetch(API_URL + '/api/pay/cryptobot/status', {
+  try {
+    const res = await fetch(API_URL + '/api/pay/cryptobot', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ invoiceId: data.invoiceId }),
+      body: JSON.stringify({ initData }),
     });
-    const result = await check.json();
-    if (result.status === 'paid') {
-      setStatus('Оплачено ✅');
-      clearInterval(poll);
+    const data = await res.json();
+
+    if (!data.invoiceUrl) {
+      setStatus('Ошибка: ' + (data.error || 'неизвестная ошибка'));
+      return;
     }
-  }, 3000);
+
+    tg.openTelegramLink(data.invoiceUrl);
+    setStatus('Открыт чат с CryptoBot — заверши оплату там, потом вернись сюда');
+
+    const poll = setInterval(async () => {
+      const check = await fetch(API_URL + '/api/pay/cryptobot/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invoiceId: data.invoiceId }),
+      });
+      const result = await check.json();
+      if (result.status === 'paid') {
+        setStatus('Оплачено ✅');
+        clearInterval(poll);
+      }
+    }, 3000);
+  } catch (e) {
+    setStatus('Сетевая ошибка: ' + e.message);
+  }
 });
 
 loadProfile();
